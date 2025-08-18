@@ -46,7 +46,7 @@ dependencies {
 
     // Retrofit
     implementation(libs.retrofit)
-    implementation(libs.retrofit.gson.converter)
+    implementation(libs.retrofit.moshi.converter)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
