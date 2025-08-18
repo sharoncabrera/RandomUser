@@ -20,4 +20,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "RandomUser"
-include(":app")
+include(":app", ":data")
+
