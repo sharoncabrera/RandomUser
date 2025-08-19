@@ -45,7 +45,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRandomUserService(retrofit: Retrofit): RandomUserApi{
+    fun provideRandomUserApi(retrofit: Retrofit): RandomUserApi{
         return retrofit.create(RandomUserApi::class.java)
     }
 }
