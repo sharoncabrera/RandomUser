@@ -1,7 +1,7 @@
 
 package com.challenge.data.di
 
-import com.challenge.data.remote.RandomUserApi
+import com.challenge.data.api.RandomUserApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module

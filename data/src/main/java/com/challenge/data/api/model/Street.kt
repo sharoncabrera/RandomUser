@@ -1,4 +1,4 @@
-package com.challenge.data.model
+package com.challenge.data.api.model
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

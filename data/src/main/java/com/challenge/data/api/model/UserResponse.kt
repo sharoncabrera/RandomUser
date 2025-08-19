@@ -1,11 +1,11 @@
-package com.challenge.data.model
+package com.challenge.data.api.model
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class UserResponse(
-    @Json(name = "results") val results: List<User>,
+    @Json(name = "results") val results: List<UserDTO>,
     @Json(name = "info") val info: Info
 )
 

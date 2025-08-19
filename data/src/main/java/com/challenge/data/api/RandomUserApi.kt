@@ -1,6 +1,6 @@
-package com.challenge.data.remote
+package com.challenge.data.api
 
-import com.challenge.data.model.UserResponse
+import com.challenge.data.api.model.UserResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 

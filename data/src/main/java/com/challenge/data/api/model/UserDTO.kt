@@ -1,10 +1,10 @@
-package com.challenge.data.model
+package com.challenge.data.api.model
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class User(
+data class UserDTO(
     @Json(name = "gender") val gender: String?,
     @Json(name = "name") val name: Name?,
     @Json(name = "location") val location: Location?,
