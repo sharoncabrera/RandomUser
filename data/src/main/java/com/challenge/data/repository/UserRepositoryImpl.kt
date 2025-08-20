@@ -17,14 +17,23 @@ class UserRepositoryImpl @Inject constructor(
     private val userDao: UserDao
 ) : UserRepository {
 
+    override fun getLocalUsers(): Flow<List<User>> {
+        return userDao.getAllUsers()
+            .map { it.map { entity -> entity.toUser() } }
+            .flowOn(Dispatchers.IO)
+    }
+
     override suspend fun getUsers(count: Int): Flow<List<User>> {
         val apiUsers = api.getUsers(count).results
         val entities = apiUsers.map { it.toUserEntity() }
         userDao.insertAll(entities)
 
+
         return userDao.getAllUsers()
             .map { list -> list.map { it.toUser() } }
             .flowOn(Dispatchers.IO)
+
+
     }
 
     override suspend fun deleteUser(user: User) {

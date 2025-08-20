@@ -4,8 +4,9 @@ import com.challenge.data.api.RandomUserApi
 import com.challenge.data.database.UserDao
 import com.challenge.data.repository.UserRepositoryImpl
 import com.challenge.domain.repository.UserRepository
-import com.challenge.domain.usecase.DeleteUserUseCase
-import com.challenge.domain.usecase.FilterUsersUseCase
+import com.challenge.domain.usecase.GetDeleteUserUseCase
+import com.challenge.domain.usecase.GetFilterUsersUseCase
+import com.challenge.domain.usecase.GetLocalUsersUseCase
 import com.challenge.domain.usecase.GetUsersUseCase
 import dagger.Module
 import dagger.Provides
@@ -35,13 +36,20 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDeleteUserUseCase(userRepository: UserRepository): DeleteUserUseCase {
-        return DeleteUserUseCase(userRepository)
+    fun provideDeleteUserUseCase(userRepository: UserRepository): GetDeleteUserUseCase {
+        return GetDeleteUserUseCase(userRepository)
     }
 
     @Provides
     @Singleton
-    fun provideFilterUsersUseCase(userRepository: UserRepository): FilterUsersUseCase {
-        return FilterUsersUseCase(userRepository)
+    fun provideFilterUsersUseCase(userRepository: UserRepository): GetFilterUsersUseCase {
+        return GetFilterUsersUseCase(userRepository)
+    }
+    @Provides
+    @Singleton
+    fun provideGetLocalUsersUseCase(
+        userRepository: UserRepository
+    ): GetLocalUsersUseCase {
+        return GetLocalUsersUseCase(userRepository)
     }
 }
