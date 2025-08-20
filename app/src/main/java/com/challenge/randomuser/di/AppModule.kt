@@ -7,6 +7,7 @@ import com.challenge.domain.repository.UserRepository
 import com.challenge.domain.usecase.GetDeleteUserUseCase
 import com.challenge.domain.usecase.GetFilterUsersUseCase
 import com.challenge.domain.usecase.GetLocalUsersUseCase
+import com.challenge.domain.usecase.GetUserInfoUseCase
 import com.challenge.domain.usecase.GetUsersUseCase
 import dagger.Module
 import dagger.Provides
@@ -33,13 +34,11 @@ object AppModule {
     ): GetUsersUseCase {
         return GetUsersUseCase(userRepository)
     }
-
     @Provides
     @Singleton
     fun provideDeleteUserUseCase(userRepository: UserRepository): GetDeleteUserUseCase {
         return GetDeleteUserUseCase(userRepository)
     }
-
     @Provides
     @Singleton
     fun provideFilterUsersUseCase(userRepository: UserRepository): GetFilterUsersUseCase {
@@ -51,5 +50,13 @@ object AppModule {
         userRepository: UserRepository
     ): GetLocalUsersUseCase {
         return GetLocalUsersUseCase(userRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetUserInfoUseCase(
+        userRepository: UserRepository
+    ): GetUserInfoUseCase {
+        return GetUserInfoUseCase(userRepository)
     }
 }

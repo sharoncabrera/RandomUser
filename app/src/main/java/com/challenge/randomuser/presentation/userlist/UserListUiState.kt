@@ -6,7 +6,6 @@ data class UserListUiState(
     val isLoading: Boolean = false,
     val users: List<User> = emptyList(),
     val errorMessage: String? = null,
-    val allUsersCache: List<User> = emptyList(),
     val searchQuery: String = ""
 )
 

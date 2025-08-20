@@ -28,12 +28,9 @@ class UserRepositoryImpl @Inject constructor(
         val entities = apiUsers.map { it.toUserEntity() }
         userDao.insertAll(entities)
 
-
         return userDao.getAllUsers()
             .map { list -> list.map { it.toUser() } }
             .flowOn(Dispatchers.IO)
-
-
     }
 
     override suspend fun deleteUser(user: User) {
@@ -45,6 +42,13 @@ class UserRepositoryImpl @Inject constructor(
         val formattedQuery = "%$query%"
         return userDao.searchUsers(formattedQuery)
             .map { list -> list.map { it.toUser() } }
+            .flowOn(Dispatchers.IO)
+    }
+
+
+    override suspend fun getUserById(userId: String): Flow<User> {
+        return userDao.getUserById(userId)
+            .map { it.toUser() }
             .flowOn(Dispatchers.IO)
     }
 }

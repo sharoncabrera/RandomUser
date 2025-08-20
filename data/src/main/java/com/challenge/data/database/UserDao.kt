@@ -13,7 +13,7 @@ interface UserDao {
     suspend fun insertAll(users: List<UserEntity>)
 
     @Query("SELECT * FROM users WHERE id = :userId AND isDeleted = 0")
-    fun getUserById(userId: String): Flow<UserEntity?>
+    fun getUserById(userId: String): Flow<UserEntity>
 
     @Query("SELECT * FROM users WHERE isDeleted = 0")
     fun getAllUsers(): Flow<List<UserEntity>>

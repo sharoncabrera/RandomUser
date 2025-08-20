@@ -24,11 +24,13 @@ class UserListViewModel @Inject constructor(
     private val getFilterUsersUseCase: GetFilterUsersUseCase
 ) : ViewModel() {
 
+    private var allUsersCache = listOf<User>()
+
     private val _uiState = MutableStateFlow(UserListUiState())
     val uiState: StateFlow<UserListUiState> = _uiState.asStateFlow()
 
     init {
-        onEvent(UserListEvent.LoadInitialUsers)
+        onEvent(UserListEvent.FetchMoreUsers)
     }
 
     // UI interactions
@@ -44,12 +46,14 @@ class UserListViewModel @Inject constructor(
     }
 
     private suspend fun handleLoadInitialUsers() {
-        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+        _uiState.value = _uiState.value.copy(
+            isLoading = true
+        )
         try {
             getLocalUsersUseCase().collect { initialUsers ->
+                allUsersCache = initialUsers
                 _uiState.value = _uiState.value.copy(
-                    users = getNonDeletedUsers(initialUsers),
-                    allUsersCache = initialUsers,
+                    users = getPresentableUsers(_uiState.value.searchQuery),
                     isLoading = false
                 )
             }
@@ -62,14 +66,16 @@ class UserListViewModel @Inject constructor(
     }
 
     private suspend fun handleFetchMoreUsers(count: Int) {
-        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+        _uiState.value = _uiState.value.copy(
+            isLoading = true,
+            errorMessage = null
+        )
         try {
             getUsersUseCase(count).collect { newUsers ->
-                val existingUsers = _uiState.value.allUsersCache
-                val combinedUsers = (existingUsers + newUsers).distinctBy { it.id }
+                allUsersCache = (allUsersCache + newUsers).distinctBy { it.id }
+
                 _uiState.value = _uiState.value.copy(
-                    users = getNonDeletedUsers(combinedUsers),
-                    allUsersCache = combinedUsers,
+                    users = getPresentableUsers(_uiState.value.searchQuery),
                     isLoading = false,
                 )
             }
@@ -84,13 +90,10 @@ class UserListViewModel @Inject constructor(
     private suspend fun handleDeleteUser(userToDelete: User) {
         try {
             getDeleteUserUseCase(userToDelete)
+            allUsersCache = allUsersCache.filter { it.id != userToDelete.id }
 
-            val updatedCache = _uiState.value.allUsersCache.map {
-                if (it.id == userToDelete.id) it.copy(isDeleted = true) else it
-            }
             _uiState.value = _uiState.value.copy(
-                users = getNonDeletedUsers(updatedCache),
-                allUsersCache = updatedCache
+                users = getPresentableUsers(_uiState.value.searchQuery)
             )
         } catch (e: Exception) {
             _uiState.value = _uiState.value.copy(
@@ -100,15 +103,16 @@ class UserListViewModel @Inject constructor(
     }
 
     private suspend fun handleFilterUsers(query: String) {
-        _uiState.value =
-            _uiState.value.copy(searchQuery = query, isLoading = true, errorMessage = null)
+        _uiState.value = _uiState.value.copy(
+            searchQuery = query,
+            isLoading = true,
+            errorMessage = null
+        )
         try {
-            getFilterUsersUseCase(query, _uiState.value.allUsersCache).collect { filteredUsers ->
-                _uiState.value = _uiState.value.copy(
-                    users = getNonDeletedUsers(filteredUsers),
-                    isLoading = false
-                )
-            }
+            _uiState.value = _uiState.value.copy(
+                users = getPresentableUsers(query),
+                isLoading = false
+            )
         } catch (e: Exception) {
             _uiState.value = _uiState.value.copy(
                 isLoading = false,
@@ -117,8 +121,13 @@ class UserListViewModel @Inject constructor(
         }
     }
 
-    private fun getNonDeletedUsers(users: List<User>): List<User> {
-        return users.filter { !it.isDeleted }
+    private fun getPresentableUsers(query: String): List<User> {
+        return allUsersCache.filter { user ->
+            (user.name.contains(query, ignoreCase = true) ||
+                    user.lastName.contains(query, ignoreCase = true) ||
+                    user.email.contains(query, ignoreCase = true))
+                    && !user.isDeleted
+        }
     }
 
     companion object {
