@@ -11,6 +11,7 @@ data class UserEntity(
     val gender: String?,
     val lastName: String?,
     val street: String?,
+    val streetNumber: String?,
     val city: String?,
     val state: String?,
     val email: String?,
@@ -18,5 +19,6 @@ data class UserEntity(
     val phone: String?,
     val pictureLarge: String?,
     val pictureMedium: String?,
-    val pictureThumbnail: String?
+    val pictureThumbnail: String?,
+    val isDeleted: Boolean = false
 )

@@ -5,10 +5,13 @@ import com.challenge.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 
 
-class GetUsersUseCase(
+class FilterUsersUseCase(
     private val repository: UserRepository
 ) {
-    suspend operator fun invoke(count: Int): Flow<List<User>> {
-        return repository.getUsers(count)
+    suspend operator fun invoke(query: String): Flow<List<User>> {
+        if (query.isBlank()) {
+            //TODO: sharon
+        }
+        return repository.filterUsers(query)
     }
 }

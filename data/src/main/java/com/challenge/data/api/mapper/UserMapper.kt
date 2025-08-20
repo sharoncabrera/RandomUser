@@ -13,14 +13,38 @@ fun UserDTO.toUser(): User {
         email = this.email ?: "",
         phone = this.phone ?: "",
         street = this.location?.street?.name ?: "",
+        streetNumber = this.location?.street?.number.toString(),
         city = this.location?.city ?: "",
         state = this.location?.state ?: "",
         registeredDate = this.registered?.date ?: "",
         pictureThumbnail = this.picture?.thumbnail ?: "",
         pictureMedium = this.picture?.medium ?: "",
         pictureLarge = this.picture?.large ?: "",
+        isDeleted = false
     )
 }
+
+fun UserDTO.toUserEntity(): UserEntity {
+    return UserEntity(
+        id = this.login?.uuid.toString(),
+        name = this.name?.first?: "",
+        lastName = this.name?.last,
+        email = this.email,
+        phone = this.phone,
+        pictureLarge = this.picture?.large,
+        pictureMedium = this.picture?.medium,
+        pictureThumbnail = this.picture?.thumbnail,
+        gender = this.gender,
+        street = "${this.location?.street?.name}",
+        streetNumber = this.location?.street?.number.toString(),
+        city = this.location?.city,
+        state = this.location?.state,
+        registeredDate = this.registered?.date,
+        isDeleted = false
+    )
+}
+
+
 
 
 fun UserEntity.toUser(): User {
@@ -32,12 +56,14 @@ fun UserEntity.toUser(): User {
         email = this.email ?: "",
         phone = this.phone ?: "",
         street = this.street ?: "",
+        streetNumber = this.streetNumber.toString(),
         city = this.city ?: "",
         state = this.state ?: "",
         registeredDate = this.registeredDate ?: "",
         pictureThumbnail = this.pictureThumbnail?: "",
         pictureMedium = this.pictureMedium?: "",
         pictureLarge = this.pictureLarge?: "",
+        isDeleted = this.isDeleted
     )
 }
 
@@ -53,9 +79,11 @@ fun User.toUserEntity(): UserEntity {
         pictureThumbnail = this.pictureThumbnail,
         gender = this.gender,
         street = this.street,
+        streetNumber = this.streetNumber,
         city = this.city,
         state = this.state,
-        registeredDate = this.registeredDate
+        registeredDate = this.registeredDate,
+        isDeleted = this.isDeleted
     )
 }
 
