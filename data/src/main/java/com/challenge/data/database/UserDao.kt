@@ -24,4 +24,7 @@ interface UserDao {
     @Query("SELECT * FROM users WHERE name LIKE :query OR lastName LIKE :query OR email LIKE :query")
     fun searchUsers(query: String): Flow<List<UserEntity>>
 
+    @Query("SELECT COUNT(*) FROM users WHERE isDeleted = 0")
+    suspend fun getUserCount(): Int
+
 }

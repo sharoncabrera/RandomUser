@@ -8,6 +8,7 @@ import com.challenge.domain.model.User
 import com.challenge.domain.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -17,17 +18,12 @@ class UserRepositoryImpl @Inject constructor(
     private val userDao: UserDao
 ) : UserRepository {
 
-    override fun getLocalUsers(): Flow<List<User>> {
-        return userDao.getAllUsers()
-            .map { it.map { entity -> entity.toUser() } }
-            .flowOn(Dispatchers.IO)
-    }
-
-    override suspend fun getUsers(count: Int): Flow<List<User>> {
-        val apiUsers = api.getUsers(count).results
-        val entities = apiUsers.map { it.toUserEntity() }
-        userDao.insertAll(entities)
-
+    override suspend fun getUsers(count: Int, initial: Boolean): Flow<List<User>> {
+        if (userDao.getUserCount() == 0 || !initial) {
+            val apiUsers = api.getUsers(count).results
+            val entities = apiUsers.map { it.toUserEntity() }
+            userDao.insertAll(entities)
+        }
         return userDao.getAllUsers()
             .map { list -> list.map { it.toUser() } }
             .flowOn(Dispatchers.IO)

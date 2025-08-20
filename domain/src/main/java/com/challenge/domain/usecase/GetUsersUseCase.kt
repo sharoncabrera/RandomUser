@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 class GetUsersUseCase(
     private val repository: UserRepository
 ) {
-    suspend operator fun invoke(count: Int): Flow<List<User>> {
-        return repository.getUsers(count)
+    suspend operator fun invoke(count: Int, initial: Boolean): Flow<List<User>> {
+        return repository.getUsers(count, initial)
     }
 }

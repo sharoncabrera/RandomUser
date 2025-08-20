@@ -1,12 +1,11 @@
 package com.challenge.randomuser.presentation.userlist
 
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.challenge.domain.model.User
 import com.challenge.domain.usecase.GetDeleteUserUseCase
-import com.challenge.domain.usecase.GetFilterUsersUseCase
-import com.challenge.domain.usecase.GetLocalUsersUseCase
 import com.challenge.domain.usecase.GetUsersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,10 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserListViewModel @Inject constructor(
-    private val getLocalUsersUseCase: GetLocalUsersUseCase,
     private val getUsersUseCase: GetUsersUseCase,
     private val getDeleteUserUseCase: GetDeleteUserUseCase,
-    private val getFilterUsersUseCase: GetFilterUsersUseCase
 ) : ViewModel() {
 
     private var allUsersCache = listOf<User>()
@@ -30,7 +27,7 @@ class UserListViewModel @Inject constructor(
     val uiState: StateFlow<UserListUiState> = _uiState.asStateFlow()
 
     init {
-        onEvent(UserListEvent.FetchMoreUsers)
+        onEvent(UserListEvent.LoadInitialUsers)
     }
 
     // UI interactions
@@ -50,7 +47,7 @@ class UserListViewModel @Inject constructor(
             isLoading = true
         )
         try {
-            getLocalUsersUseCase().collect { initialUsers ->
+            getUsersUseCase(INITIAL_USER_COUNT, true).collect { initialUsers ->
                 allUsersCache = initialUsers
                 _uiState.value = _uiState.value.copy(
                     users = getPresentableUsers(_uiState.value.searchQuery),
@@ -66,12 +63,13 @@ class UserListViewModel @Inject constructor(
     }
 
     private suspend fun handleFetchMoreUsers(count: Int) {
+        if (_uiState.value.isLoading) return
         _uiState.value = _uiState.value.copy(
             isLoading = true,
             errorMessage = null
         )
         try {
-            getUsersUseCase(count).collect { newUsers ->
+            getUsersUseCase(count, false).collect { newUsers ->
                 allUsersCache = (allUsersCache + newUsers).distinctBy { it.id }
 
                 _uiState.value = _uiState.value.copy(

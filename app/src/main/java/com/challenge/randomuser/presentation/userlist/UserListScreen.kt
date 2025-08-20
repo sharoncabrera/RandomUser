@@ -40,6 +40,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,6 +64,16 @@ fun UserListScreen(
     onUserClick: (String) -> Unit
 ) {
     val listState = rememberLazyListState()
+
+    LaunchedEffect(listState, uiState.searchQuery) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .collect { lastVisibleItemIndex ->
+                val totalItems = listState.layoutInfo.totalItemsCount
+                if (lastVisibleItemIndex != null && lastVisibleItemIndex >= totalItems - 1 && uiState.searchQuery.isBlank()) {
+                    onEvent(UserListEvent.FetchMoreUsers)
+                }
+            }
+    }
 
     Scaffold(
         topBar = {
@@ -102,10 +114,6 @@ fun UserListScreen(
                             onClick = { onUserClick(user.id) },
                             onDeleteUser = { onEvent(UserListEvent.DeleteUser(user)) }
                         )
-                        //TODO: añadir algo para el paginado
-                        if (index == uiState.users.lastIndex) {
-                            onEvent(UserListEvent.FetchMoreUsers)
-                        }
                     }
                 }
 
