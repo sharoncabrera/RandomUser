@@ -6,12 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.challenge.domain.model.User
 import com.challenge.domain.usecase.GetDeleteUserUseCase
 import com.challenge.domain.usecase.GetUsersUseCase
+import com.challenge.domain.util.DataError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.challenge.domain.util.Result
 
 
 @HiltViewModel
@@ -42,60 +44,66 @@ class UserListViewModel @Inject constructor(
     }
 
     private suspend fun handleLoadInitialUsers() {
-        _uiState.value = _uiState.value.copy(
-            isLoading = true
-        )
-        try {
-            getUsersUseCase(INITIAL_USER_COUNT, true).collect { initialUsers ->
-                allUsersCache = initialUsers
-                _uiState.value = _uiState.value.copy(
-                    users = getPresentableUsers(_uiState.value.searchQuery),
-                    isLoading = false
-                )
+        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+
+        getUsersUseCase(INITIAL_USER_COUNT, true).collect { result ->
+            when (result) {
+                is Result.Success -> {
+                    allUsersCache = result.data
+                    _uiState.value = _uiState.value.copy(
+                        users = getPresentableUsers(_uiState.value.searchQuery),
+                        isLoading = false
+                    )
+                }
+
+                is Result.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = mapError(result.error)
+                    )
+                }
             }
-        } catch (e: Exception) {
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-                errorMessage = "Failed to load local users: ${e.message}"
-            )
         }
     }
 
     private suspend fun handleFetchMoreUsers(count: Int) {
         if (_uiState.value.isLoading) return
-        _uiState.value = _uiState.value.copy(
-            isLoading = true,
-            errorMessage = null
-        )
-        try {
-            getUsersUseCase(count, false).collect { newUsers ->
-                allUsersCache = (allUsersCache + newUsers).distinctBy { it.id }
+        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
-                _uiState.value = _uiState.value.copy(
-                    users = getPresentableUsers(_uiState.value.searchQuery),
-                    isLoading = false,
-                )
+        getUsersUseCase(count, false).collect { result ->
+            when (result) {
+                is Result.Success -> {
+                    allUsersCache = (allUsersCache + result.data).distinctBy { it.id }
+                    _uiState.value = _uiState.value.copy(
+                        users = getPresentableUsers(_uiState.value.searchQuery),
+                        isLoading = false
+                    )
+                }
+
+                is Result.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = mapError(result.error)
+                    )
+                }
             }
-        } catch (e: Exception) {
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-                errorMessage = "Failed to load more users: ${e.message}"
-            )
         }
     }
 
     private suspend fun handleDeleteUser(userToDelete: User) {
-        try {
-            getDeleteUserUseCase(userToDelete)
-            allUsersCache = allUsersCache.filter { it.id != userToDelete.id }
+        when (val result = getDeleteUserUseCase(userToDelete)) {
+            is Result.Success -> {
+                allUsersCache = allUsersCache.filter { it.id != userToDelete.id }
+                _uiState.value = _uiState.value.copy(
+                    users = getPresentableUsers(_uiState.value.searchQuery)
+                )
+            }
 
-            _uiState.value = _uiState.value.copy(
-                users = getPresentableUsers(_uiState.value.searchQuery)
-            )
-        } catch (e: Exception) {
-            _uiState.value = _uiState.value.copy(
-                errorMessage = "Failed to delete user: ${e.message}"
-            )
+            is Result.Error -> {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = mapError(result.error)
+                )
+            }
         }
     }
 
@@ -126,6 +134,23 @@ class UserListViewModel @Inject constructor(
                     && !user.isDeleted
         }
     }
+
+    private fun mapError(error: DataError): String {
+        return when (error) {
+            DataError.Network.NO_INTERNET_CONNECTION -> "No internet connection"
+            DataError.Network.SERVER_ERROR -> "Server error"
+            DataError.Network.REQUEST_TIMEOUT -> "Request timed out"
+            DataError.Network.SERIALIZATION_ERROR -> "Serialization error"
+            DataError.Network.UNKNOWN -> "Unknown network error"
+
+            DataError.Local.DISK_FULL -> "Disk is full"
+            DataError.Local.DATABASE_READ_ERROR -> "Ops! Something went wrong"
+            DataError.Local.DATABASE_WRITE_ERROR -> "Failed to delete user"
+            DataError.Local.USER_NOT_FOUND_IN_DB -> "User not found"
+            DataError.Local.UNKNOWN -> "Unknown local error"
+        }
+    }
+
 
     companion object {
         private const val INITIAL_USER_COUNT = 1

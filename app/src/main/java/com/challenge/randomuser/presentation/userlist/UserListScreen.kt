@@ -1,6 +1,6 @@
 package com.challenge.randomuser.presentation.userlist
 
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,17 +17,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CircularProgressIndicator
@@ -47,7 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -64,12 +61,23 @@ fun UserListScreen(
     onUserClick: (String) -> Unit
 ) {
     val listState = rememberLazyListState()
+    val context = LocalContext.current
 
-    LaunchedEffect(listState, uiState.searchQuery) {
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let { error ->
+            Toast.makeText(context, uiState.errorMessage, Toast.LENGTH_LONG).show()
+        }
+    }
+
+
+    LaunchedEffect(listState, uiState.searchQuery, uiState.errorMessage) {
         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .collect { lastVisibleItemIndex ->
                 val totalItems = listState.layoutInfo.totalItemsCount
-                if (lastVisibleItemIndex != null && lastVisibleItemIndex >= totalItems - 1 && uiState.searchQuery.isBlank()) {
+                if (lastVisibleItemIndex != null && lastVisibleItemIndex >= totalItems - 1 &&
+                    uiState.searchQuery.isBlank() &&
+                    uiState.errorMessage == null
+                ) {
                     onEvent(UserListEvent.FetchMoreUsers)
                 }
             }
@@ -128,16 +136,16 @@ fun UserListScreen(
                     }
                 }
 
-                if (uiState.errorMessage != null) {
+                if (uiState.errorMessage != null && uiState.users.isEmpty()) {
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Yellow),
+                            .fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "Error: ${uiState.errorMessage}", color = Color.Gray)
+                        Text(text = "Ops! Something went wrong", color = Color.Gray)
                     }
                 }
+
             }
         }
     }

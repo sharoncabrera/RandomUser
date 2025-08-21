@@ -2,6 +2,7 @@ package com.challenge.randomuser.presentation
 
 import UserDetailScreen
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -45,8 +46,10 @@ fun AppNavigation() {
             val uiState by viewModel.uiState.collectAsState()
 
             val userId = backStackEntry.arguments?.getString("userId")
-            if (userId != null) {
-                viewModel.loadUser(userId)
+            LaunchedEffect(userId) {
+                if (userId != null) {
+                    viewModel.loadUser(userId)
+                }
             }
             UserDetailScreen(
                 uiState = uiState,
