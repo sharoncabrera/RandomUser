@@ -95,7 +95,7 @@ fun UserListScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                singleLine = true
+                singleLine = true,
             )
 
             Box(modifier = Modifier.fillMaxSize()) {
@@ -130,7 +130,9 @@ fun UserListScreen(
 
                 if (uiState.errorMessage != null) {
                     Box(
-                        modifier = Modifier.fillMaxSize().background(Color.Yellow),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Yellow),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(text = "Error: ${uiState.errorMessage}", color = Color.Gray)

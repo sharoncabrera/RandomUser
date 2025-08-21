@@ -1,7 +1,6 @@
 package com.challenge.randomuser.presentation.userlist
 
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.challenge.domain.model.User
