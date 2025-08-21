@@ -1,23 +1,24 @@
 package com.challenge.domain.usecase
 
+
 import com.challenge.domain.model.User
 import com.challenge.domain.repository.UserRepository
 import com.challenge.domain.util.DataError
 import com.challenge.domain.util.Result
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 
-@ExtendWith(MockitoExtension::class)
+@RunWith(MockitoJUnitRunner::class)
 class GetUserInfoUseCaseTest {
 
     @Mock
@@ -25,13 +26,13 @@ class GetUserInfoUseCaseTest {
 
     private lateinit var getUserInfoUseCase: GetUserInfoUseCase
 
-    @BeforeEach
+    @Before
     fun setUp() {
         getUserInfoUseCase = GetUserInfoUseCase(mockRepository)
     }
 
     @Test
-    fun `the use case should return a user when the repository finds one`() = runTest {
+    fun the_use_case_should_return_a_user_when_the_repository_finds_one() = runTest {
 
         val expectedUser = User(
             "1", "test@test.com", "Test", "User",
@@ -48,12 +49,12 @@ class GetUserInfoUseCaseTest {
     }
 
     @Test
-    fun `the use case should fail when a user is not found in the DB`() = runTest {
+    fun the_use_case_should_fail_when_a_user_is_not_found_in_the_DB() = runTest {
         // Preparation
         val errorResult = Result.Error(DataError.Local.USER_NOT_FOUND_IN_DB)
         whenever(mockRepository.getUserById(any())).thenReturn(flowOf(errorResult))
 
-        //Action
+        // Action
         val result = getUserInfoUseCase.invoke("1").first()
 
         assertTrue(result is Result.Error)
@@ -62,7 +63,7 @@ class GetUserInfoUseCaseTest {
 
 
     @Test
-    fun `the use case should handle database read errors properly`() = runTest {
+    fun the_use_case_should_handle_database_read_errors_properly() = runTest {
         val errorResult = Result.Error(DataError.Local.DATABASE_READ_ERROR)
         whenever(mockRepository.getUserById(any())).thenReturn(flowOf(errorResult))
 
@@ -71,6 +72,4 @@ class GetUserInfoUseCaseTest {
         assertTrue(result is Result.Error)
         assertEquals(DataError.Local.DATABASE_READ_ERROR, (result as Result.Error).error)
     }
-
-
 }
