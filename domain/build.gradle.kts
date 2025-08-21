@@ -37,8 +37,19 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     testImplementation(libs.junit)
-    testImplementation("org.mockito:mockito-core:5.19.0")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:6.0.0")
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // for JUnit 5
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
+
+// for mockito-kotlin
+    testImplementation("org.mockito:mockito-junit-jupiter:4.11.0")
+
+
+
 }
