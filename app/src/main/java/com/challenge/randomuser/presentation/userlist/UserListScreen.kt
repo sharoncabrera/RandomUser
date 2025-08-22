@@ -50,6 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.challenge.domain.model.User
+import java.util.Locale.getDefault
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -189,9 +190,10 @@ fun UserListItem(user: User, onDeleteUser: (User) -> Unit, onClick: () -> Unit) 
                     .padding(start = 16.dp, end = 8.dp)
             ) {
                 Text(
-                    text = "${user.name} ${user.lastName}",
+                    text = "${user.name} ${user.lastName}".uppercase(getDefault()),
                     style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
 
