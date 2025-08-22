@@ -49,8 +49,9 @@ class UserDetailViewModelTest {
 
     @Before
     fun setUp() {
-        viewModel = UserDetailViewModel(mockGetUserInfoUseCase)
         Dispatchers.setMain(UnconfinedTestDispatcher())
+        viewModel = UserDetailViewModel(mockGetUserInfoUseCase)
+
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.challenge.randomuser.presentation.userlist
 
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.challenge.domain.model.User
@@ -27,9 +28,6 @@ class UserListViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(UserListUiState())
     val uiState: StateFlow<UserListUiState> = _uiState.asStateFlow()
 
-    init {
-        onEvent(UserListEvent.LoadInitialUsers)
-    }
 
     // UI interactions
     fun onEvent(event: UserListEvent) {
@@ -47,6 +45,7 @@ class UserListViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
         getUsersUseCase(INITIAL_USER_COUNT, true).collect { result ->
+
             when (result) {
                 is Result.Success -> {
                     allUsersCache = result.data
@@ -153,6 +152,6 @@ class UserListViewModel @Inject constructor(
 
 
     companion object {
-        private const val INITIAL_USER_COUNT = 1
+        private const val INITIAL_USER_COUNT = 10
     }
 }

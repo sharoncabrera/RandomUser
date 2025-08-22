@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.challenge.randomuser.presentation.userDetail.UserDetailViewModel
+import com.challenge.randomuser.presentation.userlist.UserListEvent
 import com.challenge.randomuser.presentation.userlist.UserListScreen
 import com.challenge.randomuser.presentation.userlist.UserListViewModel
 
@@ -29,6 +30,11 @@ fun AppNavigation() {
         composable(Screen.UserList.route) {
             val viewModel: UserListViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsState()
+
+            LaunchedEffect(Unit) {
+                viewModel.onEvent(UserListEvent.LoadInitialUsers)
+            }
+
 
             UserListScreen(
                 uiState = uiState,
