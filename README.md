@@ -51,7 +51,7 @@ This project is my solution for the **Random User** coding challenge.
 
 ---
 
-## 🚀 Possible Future Improvements
+## 🚀 Improvements
 - Stronger error handling (e.g., retries).  
 - Add more **testing**.  
 - Expanded with retries or a better error UI.
